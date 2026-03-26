@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?><sqlb_project><db path="/Users/steve/toronto_rent.db" readonly="0" foreign_keys="1" case_sensitive_like="0" temp_store="0" wal_autocheckpoint="1000" synchronous="2"/><attached/><window><main_tabs open="structure browser pragmas query" current="3"/></window><tab_structure><column_width id="0" width="300"/><column_width id="1" width="0"/><column_width id="2" width="100"/><column_width id="3" width="476"/><column_width id="4" width="0"/><expanded_item id="0" parent="1"/><expanded_item id="1" parent="1"/><expanded_item id="2" parent="1"/><expanded_item id="3" parent="1"/></tab_structure><tab_browse><table title="rental_prices" custom_title="0" dock_id="1" table="4,13:mainrental_prices"/><dock_state state="000000ff00000000fd0000000100000002000003fc00000342fc0100000001fc00000000000003fc0000010100fffffffa000000000100000003fb000000160064006f0063006b00420072006f00770073006500310100000000ffffffff0000010100fffffffb000000160064006f0063006b00420072006f00770073006500320100000000ffffffff0000000000000000fb000000160064006f0063006b00420072006f00770073006500330100000000ffffffff0000000000000000000002810000000000000004000000040000000800000008fc00000000"/><default_encoding codec=""/><browse_table_settings><table schema="main" name="rental_prices" show_row_id="0" encoding="" plot_x_axis="" unlock_view_pk="_rowid_" freeze_columns="0"><sort/><column_widths><column index="1" value="73"/><column index="2" value="103"/><column index="3" value="37"/><column index="4" value="66"/></column_widths><filter_values/><conditional_formats/><row_id_formats/><display_formats/><hidden_columns/><plot_y_axes/><global_filter/></table></browse_table_settings></tab_browse><tab_sql><sql name="SQL 1*">SELECT * FROM rental_prices;
+
+-- count number of each duplicated column
+SELECT zone, bedroom_type, year, avg_rent, COUNT(*) as count
+FROM rental_prices
+GROUP BY zone, bedroom_type, year, avg_rent
+HAVING COUNT(*) &gt; 1;
+
+-- delete duplicated row
+DELETE FROM rental_prices
+WHERE rowid NOT IN (
+    SELECT MIN(rowid)
+    FROM rental_prices
+    GROUP BY zone, bedroom_type, year, avg_rent
+);
+
+SELECT * FROM rental_prices;
+
+-- update info in column from selected row
+UPDATE rental_prices
+SET avg_rent = 2000
+WHERE zone = 'Scarborough';
+
+SELECT * 
+FROM rental_prices
+WHERE year = 2024;
+
+-- checking rent of 2024 from high to low
+SELECT * 
+FROM rental_prices
+WHERE year = 2024
+ORDER BY avg_rent DESC; --DESC 从大到小, ASC 从小到大
+
+SELECT * FROM rental_prices; -- 重新查看目前表格中的数据
+
+-- calculate avg by zone group
+SELECT zone, AVG(avg_rent) AS avg_zonal_rent
+FROM rental_prices
+GROUP BY zone; -- 分组展示区域平均租金(组内年份租金取平均)
+
+-- 当然, 最基本的全表选定列的均值
+SELECT AVG(avg_rent) FROM rental_prices;
+
+-- calculate avg by year group
+SELECT year, AVG(avg_rent) AS avg_rent
+FROM rental_prices
+GROUP BY year; -- 分组展示年份平均租金(组内区域租金取平均)
+</sql><current_tab id="0"/></tab_sql></sqlb_project>
